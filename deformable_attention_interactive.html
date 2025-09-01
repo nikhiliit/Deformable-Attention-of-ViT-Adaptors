@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deformable Attention: A-Z Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Copyright and Attribution */
+        .copyright-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .copyright-badge:hover {
+            background: rgba(0, 0, 0, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .developer-signature {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            border-top: 3px solid #667eea;
+            margin-top: 40px;
+        }
+
+        .developer-signature .signature-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .developer-signature .brand-mark {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Enhanced Header Design */
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px 30px 30px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+            background-size: 200% 100%;
+            animation: gradient-flow 3s ease-in-out infinite;
+        }
+
+        @keyframes gradient-flow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #64748b;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Professional Typography */
+        h2 {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        /* Enhanced Progress Bar */
+        .progress-bar {
+            background: rgba(226, 232, 240, 0.6);
+            height: 10px;
+            border-radius: 10px;
+            margin: 25px 0;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4299e1, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+            border-radius: 0 10px 10px 0;
+        }
+
+        /* Premium Step Navigation */
+        .step-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            padding: 0 15px;
+        }
+
+        .step-btn {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .step-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .step-btn:hover::before {
+            left: 100%;
+        }
+
+        .step-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .step-btn.completed {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border-color: #48bb78;
+            position: relative;
+        }
+
+        .step-btn.completed::after {
+            content: '✓';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Premium Content Area */
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 50px;
+            margin-bottom: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.05);
+            min-height: 700px;
+            position: relative;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Premium Visual Elements */
+        .concept-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .concept-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-20px, -20px) rotate(5deg); }
+        }
+
+        .concept-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Interactive Demo Enhancement */
+        .interactive-demo {
+            background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .interactive-demo::before {
+            content: '⚡ Interactive';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 40px);
+            grid-template-rows: repeat(6, 40px);
+            gap: 3px;
+            margin: 25px auto;
+            justify-content: center;
+            position: relative;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+        }
+
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.6s;
+        }
+
+        .grid-cell:hover {
+            transform: scale(1.15) translateZ(0);
+            z-index: 10;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .grid-cell:hover::before {
+            left: 100%;
+        }
+
+        .grid-cell.query {
+            background: linear-gradient(145deg, #667eea, #5a67d8);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .grid-cell.reference {
+            background: linear-gradient(145deg, #f6ad55, #ed8936);
+            color: white;
+            box-shadow: 0 4px 15px rgba(246, 173, 85, 0.4);
+        }
+
+        .grid-cell.sampling {
+            background: linear-gradient(145deg, #4fd1c7, #38b2ac);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 209, 199, 0.4);
+        }
+
+        .grid-cell.attended {
+            background: linear-gradient(145deg, #fc8181, #f56565);
+            color: white;
+            animation: premium-pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(252, 129, 129, 0.6);
+        }
+
+        @keyframes premium-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(252, 129, 129, 0.6); }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(252, 129, 129, 0.8); }
+        }
+
+        /* Premium Buttons */
+        .btn {
+            background: linear-gradient(145deg, #667eea, #5a67d8);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(145deg, #718096, #4a5568);
+            box-shadow: 0 4px 15px rgba(113, 128, 150, 0.3);
+        }
+
+        .btn.success {
+            background: linear-gradient(145deg, #48bb78, #38a169);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn.danger {
+            background: linear-gradient(145deg, #f56565, #e53e3e);
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        }
+
+        /* Enhanced Formula Box */
+        .formula-box {
+            background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            margin: 25px 0;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid #4a5568;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .formula-box::before {
+            content: '</>';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #667eea;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Enhanced Info Panel */
+        .info-panel {
+            background: linear-gradient(145deg, #e6fffa 0%, #b2f5ea 100%);
+            border: 2px solid #4fd1c7;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-panel::before {
+            content: '💡';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+            opacity: 0.7;
+        }
+
+        /* Premium Table Design */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(145deg, #667eea, #5a67d8);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .comparison-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        /* Responsive Design Enhancements */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px 25px 20px;
+                border-radius: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .content-area {
+                padding: 30px 25px;
+                border-radius: 20px;
+            }
+            
+            .demo-grid {
+                grid-template-columns: repeat(6, 35px);
+                grid-template-rows: repeat(5, 35px);
+                gap: 2px;
+            }
+            
+            .grid-cell {
+                width: 35px;
+                height: 35px;
+                font-size: 10px;
+            }
+            
+            .visualization-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .step-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
+        /* Advanced Visual Effects */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }viz-panel {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .attention-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .attention-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .info-panel {
+            background: #e6fffa;
+            border: 2px solid #4fd1c7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .demo-grid {
+                grid-template-columns: repeat(6, 35px);
+                grid-template-rows: repeat(5, 35px);
+            }
+            
+            .grid-cell {
+                width: 35px;
+                height: 35px;
+                font-size: 10px;
+            }
+            
+            .visualization-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Deformable Attention A-Z</h1>
+            <p>Interactive journey through the complete concept -by Nikhil Sharma</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="step-navigation" id="stepNavigation">
+            <!-- Step buttons will be generated here -->
+        </div>
+
+        <div class="content-area">
+            <!-- Step 1: Introduction -->
+            <div class="step-content" data-step="1">
+                <h2>Step 1: The Problem with Fixed Attention</h2>
+                
+                <div class="concept-box">
+                    <h3>The Core Problem</h3>
+                    <p>Traditional Vision Transformers use <strong>fixed grid attention</strong> - they can only look at predetermined patch locations. This is like being forced to only look at specific spots on a map, even when the interesting features are somewhere else!</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Fixed vs Deformable - Click to Compare</h3>
+                    <div class="controls">
+                        <button class="btn" onclick="showFixedAttention()">Show Fixed Attention</button>
+                        <button class="btn success" onclick="showDeformableAttention()">Show Deformable Attention</button>
+                        <button class="btn secondary" onclick="resetDemo()">Reset</button>
+                    </div>
+                    
+                    <div class="demo-grid" id="demoGrid1">
+                        <!-- Grid will be populated by JavaScript -->
+                    </div>
+                    
+                    <div id="explanation1" class="formula-explanation">
+                        <strong>Click the buttons above to see the difference!</strong><br>
+                        Fixed attention: Limited to preset positions<br>
+                        Deformable attention: Can adapt to look anywhere
+                    </div>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Key Insight</h4>
+                    <p>Deformable attention solves this by learning <strong>where to look</strong> rather than being constrained to fixed positions. It's like upgrading from a rigid security camera to a smart camera that can zoom and pan to focus on important areas.</p>
+                </div>
+            </div>
+
+            <!-- Step 2: Reference Points -->
+            <div class="step-content" data-step="2">
+                <h2>Step 2: Reference Points - The Foundation</h2>
+                
+                <div class="concept-box">
+                    <h3>What Are Reference Points?</h3>
+                    <p>Reference points are like <strong>"home base" coordinates</strong> - they provide a starting position from which the model can learn to look elsewhere. Think of them as anchors in a coordinate system.</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Interactive Reference Point System</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Grid Resolution:</label>
+                            <select id="gridResolution" onchange="updateReferencePoints()">
+                                <option value="4">4x4</option>
+                                <option value="6" selected>6x6</option>
+                                <option value="8">8x8</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="showCoordinates()">Show Coordinates</button>
+                        <button class="btn secondary" onclick="hideCoordinates()">Hide Coordinates</button>
+                    </div>
+                    
+                    <div class="demo-grid" id="demoGrid2">
+                        <!-- Grid will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="formula-box" id="referenceFormula">
+For grid position (i, j) in an H×W grid:<br><br>
+<span class="highlight">reference_x = (i + 0.5) / W</span><br>
+<span class="highlight">reference_y = (j + 0.5) / H</span><br><br>
+The +0.5 ensures points are at cell centers, not corners!
+                    </div>
+                </div>
+
+                <div class="visualization-container">
+                    <div class="viz-panel">
+                        <h4>Normalized Coordinates</h4>
+                        <p>All reference points are normalized to [0,1] range:</p>
+                        <ul>
+                            <li>(0,0) = top-left corner</li>
+                            <li>(1,1) = bottom-right corner</li>
+                            <li>(0.5, 0.5) = center</li>
+                        </ul>
+                    </div>
+                    <div class="viz-panel">
+                        <h4>Why +0.5?</h4>
+                        <p>Adding 0.5 centers the reference points:</p>
+                        <ul>
+                            <li>Better for interpolation</li>
+                            <li>Symmetric sampling coverage</li>
+                            <li>Reduces boundary artifacts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Learning Offsets -->
+            <div class="step-content" data-step="3">
+                <h2>Step 3: Learning Spatial Offsets</h2>
+                
+                <div class="concept-box">
+                    <h3>The Magic of Learnable Offsets</h3>
+                    <p>This is where the "deformable" comes from! The model learns to predict <strong>offset vectors</strong> that tell it how to move from the reference point to the optimal sampling location.</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Interactive Offset Learning</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Offset X: <span id="offsetXValue">0.0</span></label>
+                            <input type="range" id="offsetX" class="slider" min="-0.5" max="0.5" step="0.1" value="0" oninput="updateOffsets()">
+                        </div>
+                        <div class="control-group">
+                            <label>Offset Y: <span id="offsetYValue">0.0</span></label>
+                            <input type="range" id="offsetY" class="slider" min="-0.5" max="0.5" step="0.1" value="0" oninput="updateOffsets()">
+                        </div>
+                        <button class="btn" onclick="randomOffsets()">Random Offsets</button>
+                        <button class="btn secondary" onclick="resetOffsets()">Reset</button>
+                    </div>
+                    
+                    <div class="demo-grid" id="demoGrid3">
+                        <!-- Grid will be populated by JavaScript -->
+                    </div>
+                    
+                    <svg width="100%" height="200" style="position: absolute; top: 0; left: 0; pointer-events: none;">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                                    refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#e53e3e" />
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="formula-box">
+<strong>Offset Prediction Network:</strong><br><br>
+Δp = MLP(query_features)<br>
+where Δp ∈ R² represents the (x, y) offset<br><br>
+<strong>Final Sampling Point:</strong><br>
+sampling_point = reference_point + Δp<br><br>
+<span class="highlight">The model learns what Δp should be for each query!</span>
+                </div>
+
+                <div class="info-panel">
+                    <h4>Training Process</h4>
+                    <p>During training, the model learns to predict offsets that help it attend to the most relevant spatial locations for each query. The gradients flow back through the sampling operation to update these offset predictions.</p>
+                </div>
+            </div>
+
+            <!-- Step 4: Bilinear Sampling -->
+            <div class="step-content" data-step="4">
+                <h2>Step 4: Bilinear Sampling in Detail</h2>
+                
+                <div class="concept-box">
+                    <h3>Handling Non-Integer Coordinates</h3>
+                    <p>When we add offsets to reference points, we often get coordinates like (2.3, 4.7). But feature maps only have values at integer positions! <strong>Bilinear sampling</strong> solves this by interpolating between the 4 nearest neighbors.</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Interactive Bilinear Sampling</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Sample X: <span id="sampleXValue">2.5</span></label>
+                            <input type="range" id="sampleX" class="slider" min="1.0" max="4.0" step="0.1" value="2.5" oninput="updateSampling()">
+                        </div>
+                        <div class="control-group">
+                            <label>Sample Y: <span id="sampleYValue">2.5</span></label>
+                            <input type="range" id="sampleY" class="slider" min="1.0" max="3.0" step="0.1" value="2.5" oninput="updateSampling()">
+                        </div>
+                        <button class="btn" onclick="animateSampling()">Animate Process</button>
+                    </div>
+                    
+                    <div class="demo-grid" id="demoGrid4">
+                        <!-- Grid will be populated with values -->
+                    </div>
+                    
+                    <div id="samplingCalculation" class="formula-explanation">
+                        <!-- Calculation will be shown here -->
+                    </div>
+                </div>
+
+                <div class="formula-box">
+<strong>Bilinear Interpolation Formula:</strong><br><br>
+For sampling point (x_s, y_s):<br><br>
+x_low = floor(x_s), y_low = floor(y_s)<br>
+x_high = x_low + 1, y_high = y_low + 1<br>
+α = x_s - x_low, β = y_s - y_low<br><br>
+result = (1-α)(1-β) × value[y_low, x_low] +<br>
+         α(1-β) × value[y_low, x_high] +<br>
+         (1-α)β × value[y_high, x_low] +<br>
+         αβ × value[y_high, x_high]
+                </div>
+            </div>
+
+            <!-- Step 5: Attention Weights -->
+            <div class="step-content" data-step="5">
+                <h2>Step 5: Learning Attention Weights</h2>
+                
+                <div class="concept-box">
+                    <h3>Weighting the Importance</h3>
+                    <p>Not all sampled locations are equally important! The model also learns <strong>attention weights</strong> that determine how much each sampled value contributes to the final result.</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Interactive Attention Weighting</h3>
+                    <div class="controls">
+                        <button class="btn" onclick="showUniformWeights()">Uniform Weights</button>
+                        <button class="btn success" onclick="showLearnedWeights()">Learned Weights</button>
+                        <button class="btn secondary" onclick="randomizeWeights()">Randomize</button>
+                    </div>
+                    
+                    <div class="visualization-container">
+                        <div class="viz-panel">
+                            <h4>Attention Weights</h4>
+                            <div class="attention-matrix" id="attentionMatrix">
+                                <!-- Attention weights visualization -->
+                            </div>
+                            <p style="text-align: center; margin-top: 10px;">
+                                <small>Darker = Higher Weight</small>
+                            </p>
+                        </div>
+                        <div class="viz-panel">
+                            <h4>Weight Values</h4>
+                            <div id="weightValues" style="font-family: monospace;">
+                                <!-- Weight values will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+<strong>Attention Weight Prediction:</strong><br><br>
+A_weights = Softmax(MLP(query_features))<br><br>
+<strong>Final Weighted Result:</strong><br>
+output = Σ(A_weights[k] × sampled_value[k])<br><br>
+<span class="highlight">Constraint: Σ A_weights = 1</span> (probabilities sum to 1)
+                </div>
+
+                <div class="info-panel">
+                    <h4>Key Properties</h4>
+                    <ul>
+                        <li><strong>Softmax normalization:</strong> Weights always sum to 1</li>
+                        <li><strong>Content-driven:</strong> Weights depend on query features</li>
+                        <li><strong>Learnable:</strong> Model learns optimal weighting strategy</li>
+                        <li><strong>Differentiable:</strong> Gradients flow through for training</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 6: Multi-Scale Features -->
+            <div class="step-content" data-step="6">
+                <h2>Step 6: Multi-Scale Feature Integration</h2>
+                
+                <div class="concept-box">
+                    <h3>Why Multi-Scale Matters</h3>
+                    <p>Real visual understanding requires looking at features at different resolutions simultaneously - fine details AND global context. Deformable attention can sample from multiple feature map scales in a single operation!</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Multi-Scale Sampling Visualization</h3>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Active Scales:</label>
+                            <div>
+                                <label><input type="checkbox" id="scale1" checked onchange="updateScales()"> Fine (28×28)</label>
+                                <label><input type="checkbox" id="scale2" checked onchange="updateScales()"> Medium (14×14)</label>
+                                <label><input type="checkbox" id="scale3" checked onchange="updateScales()"> Coarse (7×7)</label>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="animateMultiScale()">Animate Multi-Scale</button>
+                    </div>
+                    
+                    <div class="visualization-container" id="multiScaleViz">
+                        <div class="viz-panel">
+                            <h4>Fine Scale (28×28)</h4>
+                            <div class="demo-grid scale-fine" id="scaleFine" style="grid-template-columns: repeat(7, 20px); grid-template-rows: repeat(7, 20px);">
+                                <!-- Fine scale grid -->
+                            </div>
+                            <p><small>Captures detailed textures and edges</small></p>
+                        </div>
+                        <div class="viz-panel">
+                            <h4>Medium Scale (14×14)</h4>
+                            <div class="demo-grid scale-medium" id="scaleMedium" style="grid-template-columns: repeat(4, 30px); grid-template-rows: repeat(4, 30px);">
+                                <!-- Medium scale grid -->
+                            </div>
+                            <p><small>Captures patterns and object parts</small></p>
+                        </div>
+                        <div class="viz-panel">
+                            <h4>Coarse Scale (7×7)</h4>
+                            <div class="demo-grid scale-coarse" id="scaleCoarse" style="grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px);">
+                                <!-- Coarse scale grid -->
+                            </div>
+                            <p><small>Captures global context and scene layout</small></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+<strong>Multi-Scale Deformable Attention:</strong><br><br>
+For L feature levels with spatial shapes [(H₁,W₁), (H₂,W₂), ..., (Hₗ,Wₗ)]:<br><br>
+output = Σₗ Σₖ A_lk × sample(feature_level_l, ref_point + offset_lk)<br><br>
+where:<br>
+- l indexes feature levels (scales)<br>
+- k indexes sampling points per level<br>
+- A_lk are learned attention weights<br>
+- offset_lk are learned spatial offsets
+                </div>
+
+                <div class="comparison-table">
+                    <tr>
+                        <th>Scale</th>
+                        <th>Resolution</th>
+                        <th>Captures</th>
+                        <th>Receptive Field</th>
+                    </tr>
+                    <tr>
+                        <td>Fine</td>
+                        <td>28×28</td>
+                        <td>Edges, textures, fine details</td>
+                        <td>~8×8 pixels</td>
+                    </tr>
+                    <tr>
+                        <td>Medium</td>
+                        <td>14×14</td>
+                        <td>Patterns, object parts</td>
+                        <td>~16×16 pixels</td>
+                    </tr>
+                    <tr>
+                        <td>Coarse</td>
+                        <td>7×7</td>
+                        <td>Objects, global context</td>
+                        <td>~32×32 pixels</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Step 7: Complete Algorithm -->
+            <div class="step-content" data-step="7">
+                <h2>Step 7: The Complete Algorithm</h2>
+                
+                <div class="concept-box">
+                    <h3>Putting It All Together</h3>
+                    <p>Now let's see how all the pieces fit together in the complete Multi-Scale Deformable Attention algorithm!</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Step-by-Step Algorithm Execution</h3>
+                    <div class="controls">
+                        <button class="btn" onclick="runAlgorithm()" id="runBtn">Run Algorithm</button>
+                        <button class="btn secondary" onclick="stepAlgorithm()" id="stepBtn">Step Through</button>
+                        <button class="btn secondary" onclick="resetAlgorithm()">Reset</button>
+                    </div>
+                    
+                    <div id="algorithmSteps" class="formula-explanation">
+                        <div class="step-item" id="step1">Step 1: Input query features and generate reference points</div>
+                        <div class="step-item" id="step2">Step 2: Predict spatial offsets using MLP(query)</div>
+                        <div class="step-item" id="step3">Step 3: Predict attention weights using MLP(query)</div>
+                        <div class="step-item" id="step4">Step 4: Compute sampling points = reference + offsets</div>
+                        <div class="step-item" id="step5">Step 5: Sample from multi-scale feature maps using bilinear interpolation</div>
+                        <div class="step-item" id="step6">Step 6: Apply attention weights to sampled values</div>
+                        <div class="step-item" id="step7">Step 7: Aggregate results across all scales and points</div>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+<strong>Complete Multi-Scale Deformable Attention:</strong><br><br>
+<span class="highlight">Input:</span> query q, reference points p_ref, multi-scale features X<br>
+<span class="highlight">Step 1:</span> Δp_mk = MLP_offset(q)  ∈ R^(M×K×2)<br>
+<span class="highlight">Step 2:</span> A_mk = Softmax(MLP_attn(q))  ∈ R^(M×K)<br>
+<span class="highlight">Step 3:</span> For each scale m, point k:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p_sample = p_ref + Δp_mk<br>
+&nbsp;&nbsp;&nbsp;&nbsp;x_sampled = BilinearSample(X_m, p_sample)<br>
+<span class="highlight">Step 4:</span> output = Σ_m Σ_k A_mk × W_m × x_sampled<br><br>
+where M = number of scales, K = sampling points per scale
+                </div>
+
+                <div class="info-panel">
+                    <h4>Algorithm Complexity</h4>
+                    <p><strong>Time Complexity:</strong> O(M × K × N) where N is number of queries</p>
+                    <p><strong>Space Complexity:</strong> O(M × K × N) for storing offsets and weights</p>
+                    <p><strong>Key Advantage:</strong> 300× more efficient than full attention O(N²)</p>
+                </div>
+            </div>
+
+            <!-- Step 8: Applications & Benefits -->
+            <div class="step-content" data-step="8">
+                <h2>Step 8: Applications & Real-World Benefits</h2>
+                
+                <div class="concept-box">
+                    <h3>Why Deformable Attention Matters</h3>
+                    <p>Deformable attention isn't just a theoretical concept - it solves real problems in computer vision by enabling adaptive, content-aware spatial reasoning!</p>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Application Scenarios</h3>
+                    <div class="controls">
+                        <button class="btn" onclick="showApplication('segmentation')">Semantic Segmentation</button>
+                        <button class="btn" onclick="showApplication('detection')">Object Detection</button>
+                        <button class="btn" onclick="showApplication('depth')">Depth Estimation</button>
+                        <button class="btn secondary" onclick="showApplication('all')">Show All</button>
+                    </div>
+                    
+                    <div id="applicationDemo" class="visualization-container">
+                        <div class="viz-panel">
+                            <h4>Traditional Fixed Attention</h4>
+                            <div class="demo-grid" id="fixedAttentionDemo" style="grid-template-columns: repeat(6, 30px); grid-template-rows: repeat(6, 30px);">
+                                <!-- Fixed attention pattern -->
+                            </div>
+                            <p><small>Limited to grid positions</small></p>
+                        </div>
+                        <div class="viz-panel">
+                            <h4>Deformable Attention</h4>
+                            <div class="demo-grid" id="deformableAttentionDemo" style="grid-template-columns: repeat(6, 30px); grid-template-rows: repeat(6, 30px);">
+                                <!-- Deformable attention pattern -->
+                            </div>
+                            <p><small>Adapts to object boundaries</small></p>
+                        </div>
+                    </div>
+                    
+                    <div id="applicationExplanation" class="formula-explanation">
+                        Select an application above to see how deformable attention helps!
+                    </div>
+                </div>
+
+                <div class="comparison-table">
+                    <tr>
+                        <th>Task</th>
+                        <th>Fixed Attention Challenge</th>
+                        <th>Deformable Attention Solution</th>
+                        <th>Performance Gain</th>
+                    </tr>
+                    <tr>
+                        <td>Semantic Segmentation</td>
+                        <td>Cannot follow object boundaries</td>
+                        <td>Adapts to object shapes and edges</td>
+                        <td>+3-5 mIoU</td>
+                    </tr>
+                    <tr>
+                        <td>Object Detection</td>
+                        <td>Misses objects between patches</td>
+                        <td>Focuses on object centers and corners</td>
+                        <td>+2-4 AP</td>
+                    </tr>
+                    <tr>
+                        <td>Depth Estimation</td>
+                        <td>Poor at depth discontinuities</td>
+                        <td>Attends to depth boundaries</td>
+                        <td>Better edge preservation</td>
+                    </tr>
+                </table>
+
+                <div class="info-panel">
+                    <h4>Key Benefits Summary</h4>
+                    <ul>
+                        <li><strong>Spatial Flexibility:</strong> Can attend anywhere, not just grid positions</li>
+                        <li><strong>Content Awareness:</strong> Attention patterns adapt to visual content</li>
+                        <li><strong>Multi-Scale Integration:</strong> Combines information across resolutions</li>
+                        <li><strong>Computational Efficiency:</strong> Much faster than full attention</li>
+                        <li><strong>Better Boundaries:</strong> Superior handling of object edges and fine details</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-indicator">
+            <button class="nav-btn prev" id="prevBtn" onclick="previousStep()" disabled>
+                ← Previous
+            </button>
+            <span id="stepCounter">Step 1 of 8</span>
+            <button class="nav-btn" id="nextBtn" onclick="nextStep()">
+                Next →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 8;
+        let algorithmRunning = false;
+        let currentAlgorithmStep = 0;
+
+        // Initialize the interactive guide
+        function init() {
+            generateStepNavigation();
+            initializeGrids();
+            updateProgress();
+            showStep(1);
+        }
+
+        function generateStepNavigation() {
+            const navigation = document.getElementById('stepNavigation');
+            const steps = [
+                'Problem', 'References', 'Offsets', 'Sampling', 
+                'Weights', 'Multi-Scale', 'Algorithm', 'Applications'
+            ];
+            
+            steps.forEach((step, index) => {
+                const button = document.createElement('button');
+                button.className = 'step-btn';
+                button.textContent = `${index + 1}. ${step}`;
+                button.onclick = () => showStep(index + 1);
+                button.id = `stepBtn${index + 1}`;
+                navigation.appendChild(button);
+            });
+        }
+
+        function showStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show current step
+            document.querySelector(`.step-content[data-step="${step}"]`).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.step-btn').forEach((btn, index) => {
+                btn.classList.remove('active', 'completed');
+                if (index + 1 === step) {
+                    btn.classList.add('active');
+                } else if (index + 1 < step) {
+                    btn.classList.add('completed');
+                }
+            });
+            
+            currentStep = step;
+            updateProgress();
+            updateNavigationButtons();
+            
+            // Initialize step-specific content
+            if (step === 2) initializeReferencePoints();
+            if (step === 3) initializeOffsets();
+            if (step === 4) initializeSampling();
+            if (step === 5) initializeAttentionWeights();
+            if (step === 6) initializeMultiScale();
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('stepCounter').textContent = `Step ${currentStep} of ${totalSteps}`;
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentStep === 1;
+            nextBtn.disabled = currentStep === totalSteps;
+            
+            if (currentStep === totalSteps) {
+                nextBtn.textContent = 'Complete!';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                showStep(currentStep + 1);
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        // Step 1: Fixed vs Deformable Attention
+        function initializeGrids() {
+            const grid1 = document.getElementById('demoGrid1');
+            grid1.innerHTML = '';
+            
+            for (let i = 0; i < 48; i++) { // 8x6 grid
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.id = `cell1-${i}`;
+                grid1.appendChild(cell);
+            }
+        }
+
+        function showFixedAttention() {
+            resetDemo();
+            // Show fixed grid pattern
+            const fixedPositions = [9, 10, 17, 18, 25, 26, 33, 34];
+            fixedPositions.forEach(pos => {
+                document.getElementById(`cell1-${pos}`).classList.add('attended');
+            });
+            
+            document.getElementById('explanation1').innerHTML = `
+                <strong>Fixed Attention Pattern:</strong><br>
+                Can only attend to predetermined grid positions (red cells).<br>
+                Limited flexibility - cannot adapt to actual image content.
+            `;
+        }
+
+        function showDeformableAttention() {
+            resetDemo();
+            // Show adaptive pattern following an imaginary object
+            const adaptivePositions = [8, 11, 16, 19, 26, 29, 34, 37];
+            adaptivePositions.forEach(pos => {
+                document.getElementById(`cell1-${pos}`).classList.add('attended');
+            });
+            
+            document.getElementById('explanation1').innerHTML = `
+                <strong>Deformable Attention Pattern:</strong><br>
+                Adapts to follow object boundaries and important features.<br>
+                Can attend to any spatial location based on content.
+            `;
+        }
+
+        function resetDemo() {
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('attended', 'query', 'reference', 'sampling');
+            });
+        }
+
+        // Step 2: Reference Points
+        function initializeReferencePoints() {
+            updateReferencePoints();
+        }
+
+        function updateReferencePoints() {
+            const grid2 = document.getElementById('demoGrid2');
+            const resolution = parseInt(document.getElementById('gridResolution').value);
+            
+            grid2.innerHTML = '';
+            grid2.style.gridTemplateColumns = `repeat(${resolution}, 40px)`;
+            grid2.style.gridTemplateRows = `repeat(${resolution}, 40px)`;
+            
+            for (let i = 0; i < resolution; i++) {
+                for (let j = 0; j < resolution; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell reference';
+                    cell.textContent = `${i},${j}`;
+                    cell.style.fontSize = resolution > 6 ? '8px' : '12px';
+                    
+                    const refX = (j + 0.5) / resolution;
+                    const refY = (i + 0.5) / resolution;
+                    cell.title = `Reference: (${refX.toFixed(2)}, ${refY.toFixed(2)})`;
+                    
+                    grid2.appendChild(cell);
+                }
+            }
+        }
+
+        function showCoordinates() {
+            document.querySelectorAll('#demoGrid2 .grid-cell').forEach(cell => {
+                const coords = cell.title.split('(')[1].split(')')[0];
+                cell.textContent = coords;
+                cell.style.fontSize = '10px';
+            });
+        }
+
+        function hideCoordinates() {
+            document.querySelectorAll('#demoGrid2 .grid-cell').forEach((cell, index) => {
+                const resolution = parseInt(document.getElementById('gridResolution').value);
+                const i = Math.floor(index / resolution);
+                const j = index % resolution;
+                cell.textContent = `${i},${j}`;
+            });
+        }
+
+        // Step 3: Learning Offsets
+        function initializeOffsets() {
+            const grid3 = document.getElementById('demoGrid3');
+            grid3.innerHTML = '';
+            grid3.style.position = 'relative';
+            
+            for (let i = 0; i < 48; i++) { // 8x6 grid
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                if (i === 20) cell.classList.add('query'); // Center query
+                if (i === 21) cell.classList.add('reference'); // Reference point
+                cell.id = `cell3-${i}`;
+                grid3.appendChild(cell);
+            }
+            
+            updateOffsets();
+        }
+
+        function updateOffsets() {
+            const offsetX = parseFloat(document.getElementById('offsetX').value);
+            const offsetY = parseFloat(document.getElementById('offsetY').value);
+            
+            document.getElementById('offsetXValue').textContent = offsetX.toFixed(1);
+            document.getElementById('offsetYValue').textContent = offsetY.toFixed(1);
+            
+            // Clear previous sampling points
+            document.querySelectorAll('.grid-cell.sampling').forEach(cell => {
+                cell.classList.remove('sampling');
+            });
+            
+            // Calculate new sampling position (simplified visualization)
+            const refIndex = 21; // Reference point
+            const offsetCells = Math.round(offsetX * 8) + Math.round(offsetY * 8) * 8;
+            const samplingIndex = Math.max(0, Math.min(47, refIndex + offsetCells));
+            
+            document.getElementById(`cell3-${samplingIndex}`).classList.add('sampling');
+        }
+
+        function randomOffsets() {
+            document.getElementById('offsetX').value = (Math.random() - 0.5).toFixed(1);
+            document.getElementById('offsetY').value = (Math.random() - 0.5).toFixed(1);
+            updateOffsets();
+        }
+
+        function resetOffsets() {
+            document.getElementById('offsetX').value = 0;
+            document.getElementById('offsetY').value = 0;
+            updateOffsets();
+        }
+
+        // Step 4: Bilinear Sampling
+        function initializeSampling() {
+            const grid4 = document.getElementById('demoGrid4');
+            grid4.innerHTML = '';
+            grid4.style.gridTemplateColumns = 'repeat(5, 50px)';
+            grid4.style.gridTemplateRows = 'repeat(4, 50px)';
+            
+            const values = [
+                [1.2, 2.8, 1.5, 3.2, 0.9],
+                [2.1, 4.5, 3.8, 2.7, 1.6],
+                [0.8, 3.1, 5.2, 4.1, 2.3],
+                [1.7, 2.4, 3.6, 3.9, 1.8]
+            ];
+            
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.textContent = values[i][j].toFixed(1);
+                    cell.id = `cell4-${i}-${j}`;
+                    grid4.appendChild(cell);
+                }
+            }
+            
+            updateSampling();
+        }
+
+        function updateSampling() {
+            const x = parseFloat(document.getElementById('sampleX').value);
+            const y = parseFloat(document.getElementById('sampleY').value);
+            
+            document.getElementById('sampleXValue').textContent = x.toFixed(1);
+            document.getElementById('sampleYValue').textContent = y.toFixed(1);
+            
+            // Clear previous highlights
+            document.querySelectorAll('#demoGrid4 .grid-cell').forEach(cell => {
+                cell.classList.remove('involved');
+            });
+            
+            const x_low = Math.floor(x);
+            const y_low = Math.floor(y);
+            const x_high = Math.min(4, x_low + 1);
+            const y_high = Math.min(3, y_low + 1);
+            
+            // Highlight the 4 neighbors
+            document.getElementById(`cell4-${y_low}-${x_low}`).classList.add('involved');
+            document.getElementById(`cell4-${y_low}-${x_high}`).classList.add('involved');
+            document.getElementById(`cell4-${y_high}-${x_low}`).classList.add('involved');
+            document.getElementById(`cell4-${y_high}-${x_high}`).classList.add('involved');
+            
+            // Calculate bilinear interpolation
+            const values = [
+                [1.2, 2.8, 1.5, 3.2, 0.9],
+                [2.1, 4.5, 3.8, 2.7, 1.6],
+                [0.8, 3.1, 5.2, 4.1, 2.3],
+                [1.7, 2.4, 3.6, 3.9, 1.8]
+            ];
+            
+            const alpha = x - x_low;
+            const beta = y - y_low;
+            
+            const topLeft = values[y_low][x_low];
+            const topRight = values[y_low][x_high];
+            const bottomLeft = values[y_high][x_low];
+            const bottomRight = values[y_high][x_high];
+            
+            const result = (1 - alpha) * (1 - beta) * topLeft +
+                          alpha * (1 - beta) * topRight +
+                          (1 - alpha) * beta * bottomLeft +
+                          alpha * beta * bottomRight;
+            
+            document.getElementById('samplingCalculation').innerHTML = `
+                <strong>Bilinear Interpolation at (${x.toFixed(1)}, ${y.toFixed(1)}):</strong><br><br>
+                α = ${x.toFixed(1)} - ${x_low} = ${alpha.toFixed(2)}<br>
+                β = ${y.toFixed(1)} - ${y_low} = ${beta.toFixed(2)}<br><br>
+                <strong>Weights:</strong><br>
+                Top-left: ${((1-alpha)*(1-beta)).toFixed(3)} × ${topLeft} = ${((1-alpha)*(1-beta)*topLeft).toFixed(3)}<br>
+                Top-right: ${(alpha*(1-beta)).toFixed(3)} × ${topRight} = ${(alpha*(1-beta)*topRight).toFixed(3)}<br>
+                Bottom-left: ${((1-alpha)*beta).toFixed(3)} × ${bottomLeft} = ${((1-alpha)*beta*bottomLeft).toFixed(3)}<br>
+                Bottom-right: ${(alpha*beta).toFixed(3)} × ${bottomRight} = ${(alpha*beta*bottomRight).toFixed(3)}<br><br>
+                <strong>Final Result: ${result.toFixed(3)}</strong>
+            `;
+        }
+
+        function animateSampling() {
+            // Simple animation showing the sampling process
+            const steps = [
+                () => {
+                    document.getElementById('samplingCalculation').innerHTML = 
+                        '<strong>Step 1:</strong> Find 4 nearest integer coordinates...';
+                },
+                () => {
+                    document.getElementById('samplingCalculation').innerHTML = 
+                        '<strong>Step 2:</strong> Calculate fractional distances (α, β)...';
+                },
+                () => {
+                    document.getElementById('samplingCalculation').innerHTML = 
+                        '<strong>Step 3:</strong> Weight each neighbor by distance...';
+                },
+                () => {
+                    updateSampling();
+                }
+            ];
+            
+            steps.forEach((step, index) => {
+                setTimeout(step, index * 1000);
+            });
+        }
+
+        // Step 5: Attention Weights
+        function initializeAttentionWeights() {
+            showUniformWeights();
+        }
+
+        function showUniformWeights() {
+            const weights = [0.25, 0.25, 0.25, 0.25];
+            updateAttentionVisualization(weights);
+        }
+
+        function showLearnedWeights() {
+            const weights = [0.1, 0.6, 0.25, 0.05];
+            updateAttentionVisualization(weights);
+        }
+
+        function randomizeWeights() {
+            const random = Array.from({length: 4}, () => Math.random());
+            const sum = random.reduce((a, b) => a + b, 0);
+            const weights = random.map(w => w / sum);
+            updateAttentionVisualization(weights);
+        }
+
+        function updateAttentionVisualization(weights) {
+            const matrix = document.getElementById('attentionMatrix');
+            const values = document.getElementById('weightValues');
+            
+            matrix.innerHTML = '';
+            let valueText = '';
+            
+            weights.forEach((weight, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'attention-cell';
+                cell.style.backgroundColor = `rgba(102, 126, 234, ${weight})`;
+                cell.textContent = weight.toFixed(2);
+                matrix.appendChild(cell);
+                
+                valueText += `Point ${index + 1}: ${weight.toFixed(3)}<br>`;
+            });
+            
+            values.innerHTML = valueText + `<br><strong>Sum: ${weights.reduce((a, b) => a + b, 0).toFixed(3)}</strong>`;
+        }
+
+        // Step 6: Multi-Scale Features
+        function initializeMultiScale() {
+            updateScales();
+        }
+
+        function updateScales() {
+            const scale1 = document.getElementById('scale1').checked;
+            const scale2 = document.getElementById('scale2').checked;
+            const scale3 = document.getElementById('scale3').checked;
+            
+            // Update fine scale
+            const scaleFine = document.getElementById('scaleFine');
+            scaleFine.innerHTML = '';
+            scaleFine.style.opacity = scale1 ? '1' : '0.3';
+            for (let i = 0; i < 49; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.style.width = '20px';
+                cell.style.height = '20px';
+                cell.style.fontSize = '8px';
+                if (scale1 && Math.random() > 0.7) cell.classList.add('sampling');
+                scaleFine.appendChild(cell);
+            }
+            
+            // Update medium scale
+            const scaleMedium = document.getElementById('scaleMedium');
+            scaleMedium.innerHTML = '';
+            scaleMedium.style.opacity = scale2 ? '1' : '0.3';
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.style.width = '30px';
+                cell.style.height = '30px';
+                cell.style.fontSize = '10px';
+                if (scale2 && Math.random() > 0.6) cell.classList.add('sampling');
+                scaleMedium.appendChild(cell);
+            }
+            
+            // Update coarse scale
+            const scaleCoarse = document.getElementById('scaleCoarse');
+            scaleCoarse.innerHTML = '';
+            scaleCoarse.style.opacity = scale3 ? '1' : '0.3';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.style.width = '40px';
+                cell.style.height = '40px';
+                cell.style.fontSize = '12px';
+                if (scale3 && Math.random() > 0.5) cell.classList.add('sampling');
+                scaleCoarse.appendChild(cell);
+            }
+        }
+
+        function animateMultiScale() {
+            // Animate sampling across scales
+            setTimeout(() => updateScales(), 100);
+            setTimeout(() => updateScales(), 500);
+            setTimeout(() => updateScales(), 900);
+        }
+
+        // Step 7: Complete Algorithm
+        function runAlgorithm() {
+            algorithmRunning = true;
+            currentAlgorithmStep = 0;
+            
+            const steps = document.querySelectorAll('#algorithmSteps .step-item');
+            
+            function highlightStep(index) {
+                steps.forEach((step, i) => {
+                    step.style.backgroundColor = i === index ? '#e6fffa' : '';
+                    step.style.fontWeight = i === index ? 'bold' : 'normal';
+                });
+            }
+            
+            function runStep() {
+                if (currentAlgorithmStep < steps.length) {
+                    highlightStep(currentAlgorithmStep);
+                    currentAlgorithmStep++;
+                    setTimeout(runStep, 1000);
+                } else {
+                    algorithmRunning = false;
+                    setTimeout(() => {
+                        steps.forEach(step => {
+                            step.style.backgroundColor = '#f0fff4';
+                            step.style.fontWeight = 'bold';
+                        });
+                    }, 500);
+                }
+            }
+            
+            runStep();
+        }
+
+        function stepAlgorithm() {
+            const steps = document.querySelectorAll('#algorithmSteps .step-item');
+            
+            if (currentAlgorithmStep < steps.length) {
+                steps.forEach((step, i) => {
+                    step.style.backgroundColor = i === currentAlgorithmStep ? '#e6fffa' : '';
+                    step.style.fontWeight = i === currentAlgorithmStep ? 'bold' : 'normal';
+                });
+                currentAlgorithmStep++;
+            }
+        }
+
+        function resetAlgorithm() {
+            currentAlgorithmStep = 0;
+            algorithmRunning = false;
+            document.querySelectorAll('#algorithmSteps .step-item').forEach(step => {
+                step.style.backgroundColor = '';
+                step.style.fontWeight = 'normal';
+            });
+        }
+
+        // Step 8: Applications
+        function showApplication(type) {
+            const fixedDemo = document.getElementById('fixedAttentionDemo');
+            const deformableDemo = document.getElementById('deformableAttentionDemo');
+            const explanation = document.getElementById('applicationExplanation');
+            
+            // Clear previous demos
+            fixedDemo.innerHTML = '';
+            deformableDemo.innerHTML = '';
+            
+            // Generate grids
+            for (let i = 0; i < 36; i++) {
+                const fixedCell = document.createElement('div');
+                fixedCell.className = 'grid-cell';
+                fixedCell.style.width = '30px';
+                fixedCell.style.height = '30px';
+                fixedDemo.appendChild(fixedCell);
+                
+                const deformableCell = document.createElement('div');
+                deformableCell.className = 'grid-cell';
+                deformableCell.style.width = '30px';
+                deformableCell.style.height = '30px';
+                deformableDemo.appendChild(deformableCell);
+            }
+            
+            switch(type) {
+                case 'segmentation':
+                    // Fixed: rigid grid pattern
+                    [7, 8, 13, 14, 19, 20, 25, 26].forEach(i => {
+                        fixedDemo.children[i].classList.add('attended');
+                    });
+                    // Deformable: follows object boundary
+                    [6, 9, 12, 15, 18, 21, 24, 27].forEach(i => {
+                        deformableDemo.children[i].classList.add('attended');
+                    });
+                    explanation.innerHTML = `
+                        <strong>Semantic Segmentation:</strong><br>
+                        Fixed attention struggles with object boundaries that don't align with the grid.<br>
+                        Deformable attention can follow curved boundaries and complex shapes.<br>
+                        <em>Result: Better object boundary delineation and higher mIoU scores.</em>
+                    `;
+                    break;
+                    
+                case 'detection':
+                    // Fixed: misses object center
+                    [14, 15, 20, 21].forEach(i => {
+                        fixedDemo.children[i].classList.add('attended');
+                    });
+                    // Deformable: focuses on object center
+                    [10, 16, 19, 25].forEach(i => {
+                        deformableDemo.children[i].classList.add('attended');
+                    });
+                    explanation.innerHTML = `
+                        <strong>Object Detection:</strong><br>
+                        Fixed attention may miss objects that fall between grid positions.<br>
+                        Deformable attention can focus on object centers and key features.<br>
+                        <em>Result: Better localization accuracy and higher AP scores.</em>
+                    `;
+                    break;
+                    
+                case 'depth':
+                    // Fixed: poor at depth boundaries
+                    [1, 7, 13, 19, 25, 31].forEach(i => {
+                        fixedDemo.children[i].classList.add('attended');
+                    });
+                    // Deformable: follows depth discontinuities
+                    [2, 8, 14, 20, 26, 32].forEach(i => {
+                        deformableDemo.children[i].classList.add('attended');
+                    });
+                    explanation.innerHTML = `
+                        <strong>Depth Estimation:</strong><br>
+                        Fixed attention struggles with depth discontinuities and fine boundaries.<br>
+                        Deformable attention can attend to depth edges and preserve fine details.<br>
+                        <em>Result: Better edge preservation and more accurate depth maps.</em>
+                    `;
+                    break;
+                    
+                case 'all':
+                    // Show all patterns simultaneously
+                    [7, 8, 10, 13, 14, 16, 19, 20, 25, 26].forEach(i => {
+                        fixedDemo.children[i].classList.add('attended');
+                        deformableDemo.children[i].classList.add('sampling');
+                    });
+                    explanation.innerHTML = `
+                        <strong>All Applications:</strong><br>
+                        Deformable attention provides consistent improvements across all dense prediction tasks.<br>
+                        The key is adaptive spatial sampling that follows content structure rather than rigid grids.<br>
+                        <em>Universal benefit: Content-aware attention for better spatial understanding.</em>
+                    `;
+                    break;
+            }
+        }
+
+        // Initialize everything when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
